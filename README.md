@@ -29,7 +29,7 @@ Get started with our [ðŸ“š integration guides](https://docs.bentonow.com), or [ð
 1. Install the package via Composer:
 
 ```bash
-composer require bento/bento-statamic-sdk
+composer require bentonow/bento-statamic-sdk
 ```
 
 2. Publish the configuration file and assets:
