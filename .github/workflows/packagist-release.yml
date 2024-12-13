@@ -1,0 +1,81 @@
+name: Packagist Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version number (e.g., 2.0.3)'
+        required: true
+        type: string
+      type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - stable
+          - beta
+          - alpha
+        default: 'stable'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Set version
+        run: |
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          echo "PREVIOUS_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+
+      - name: Update composer.json version
+        run: |
+          jq ".version = \"${{ github.event.inputs.version }}\"" composer.json > temp.json && mv temp.json composer.json
+
+      - name: Generate Release Notes
+        id: release_notes
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./.github/scripts/generate-release-notes.js')
+            const notes = await script({github, context})
+            core.setOutput('notes', notes)
+
+      - name: Commit version bump
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add composer.json
+          git commit -m "chore: bump version to ${{ github.event.inputs.version }} [skip ci]"
+          git push
+
+      - name: Create tag
+        run: |
+          git tag v${{ github.event.inputs.version }}
+          git push origin v${{ github.event.inputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body: ${{ steps.release_notes.outputs.notes }}
+          draft: false
+          prerelease: ${{ github.event.inputs.type != 'stable' }}
+
+#      - name: Trigger Packagist Update
+#        run: |
+#          curl -XPOST -H'content-type:application/json' \
+#          "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_TOKEN }}" \
+#          -d'{"repository":{"url":"https://github.com/${{ github.repository }}"}}'
