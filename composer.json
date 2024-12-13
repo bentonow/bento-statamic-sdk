@@ -1,5 +1,5 @@
 {
-  "name": "bento/bento-statamic-sdk",
+  "name": "bentonow/bento-statamic-sdk",
   "version": "1.0.1",
   "description": "Bento addon for Statamic, enabling you to easily integrate Bento with your Statamic site",
   "type": "statamic-addon",
