@@ -1,0 +1,76 @@
+{
+    "name": "bento/bento-statamic-sdk",
+    "description": "Bento addon for Statamic, enabling you to easily integrate Bento with your Statamic site",
+    "type": "statamic-addon",
+    "keywords": [
+        "Bento",
+        "Bentonow",
+        "bento",
+        "bentonow",
+        "email",
+        "transactional",
+        "statamic",
+        "statamic-cms",
+        "statamic-plugin",
+        "email-marketing",
+        "newsletter"
+    ],
+    "homepage": "https://github.com/bentonow/bento-statamic-sdk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bento",
+            "email": "zachary.oakes@gmail.com",
+            "homepage": "https://www.bentonow.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "jesse@bentonow.com",
+        "issues": "https://github.com/bentonow/bento-statamic-sdk/issues",
+        "source": "https://github.com/bentonow/bento-statamic-sdk",
+        "docs": "https://docs.bentonow.com"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bento\\BentoStatamic\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bento\\BentoStatamic\\Tests\\": "tests"
+        }
+    },
+    "require": {
+        "statamic/cms": "^5.0",
+        "bentonow/bento-laravel-sdk": "^1.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bento\\BentoStatamic\\ServiceProvider"
+            ]
+        },
+        "statamic": {
+            "name": "Bento Statamic",
+            "description": "Bento addon for Statamic - Send beautiful transactional emails and track events",
+            "developer": "Bento",
+            "developer-url": "https://www.bentonow.com"
+        },
+        "scripts": {
+            "post-autoload-dump": [
+                "@php artisan vendor:publish --tag=bento-statamic-assets --force"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

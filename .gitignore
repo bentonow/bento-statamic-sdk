@@ -1,0 +1,85 @@
+# Dependencies
+/vendor
+/node_modules
+yarn-error.log
+npm-debug.log
+yarn-debug.log
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+.project
+.settings/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.backup
+.phpunit.result.cache
+.php_cs.cache
+.php-cs-fixer.cache
+
+# Build directories
+/public/build
+/public/hot
+/public/storage
+/public/vendor
+/storage/*.key
+/build
+/dist
+.phpunit.cache
+
+# Statamic specific
+content/assets/**/*
+content/collections/**/*
+content/globals/**/*
+content/structures/**/*
+content/navigation/**/*
+users/*.yaml
+config/statamic/users.php
+
+# Composer specific
+composer.phar
+auth.json
+
+# Laravel specific
+.env.*.php
+.env.php
+mix-manifest.json
+
+# Testing
+coverage/
+.coverage
+coverage.xml
+*.lcov
+.nyc_output
+
+# Logs
+*.log
+logs/
+/debug.log
+
+# Cache files
+*.cache
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Local development
+*.local
+*.local.*
+.history
+
+# Operating System
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
