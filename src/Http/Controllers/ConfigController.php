@@ -13,7 +13,7 @@ class ConfigController extends CpController
 {
     public function index()
     {
-        return view('bento-statamic::config', [
+        return view('bento-statamic-sdk::config', [
             'title' => 'Bento Configuration',
             'enabled' => config('bento.enabled', false),
             'site_uuid' => config('bento.site_uuid', ''),
