@@ -13,14 +13,19 @@ class ConfigController extends CpController
 {
     public function index()
     {
-        return view('bento-statamic-sdk::config', [
-            'title' => 'Bento Configuration',
+        $config = [
             'enabled' => config('bento.enabled', false),
             'site_uuid' => config('bento.site_uuid', ''),
             'publishable_key' => config('bento.publishable_key', ''),
             'secret_key' => config('bento.secret_key', ''),
+            'from_email' => env('MAIL_FROM_ADDRESS', '')
+        ];
+
+        // Pass data to the view
+        return view('bento-statamic-sdk::config', [
+            'title' => 'Bento Configuration',
             'admin_email' => User::current()->email(),
-            'mail_from_address' => env('MAIL_FROM_ADDRESS', '')
+            'bentoConfig' => json_encode($config),
         ]);
     }
 

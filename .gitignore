@@ -26,7 +26,6 @@ Thumbs.db
 .php-cs-fixer.cache
 
 # Build directories
-/public/build
 /public/hot
 /public/storage
 /public/vendor

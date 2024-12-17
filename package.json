@@ -1,13 +1,31 @@
 {
     "private": true,
     "scripts": {
+        "watch": "vite build --watch",
         "dev": "vite",
         "build": "vite build && npm run copy-assets",
-        "copy-assets": "mkdir -p ../../../public/vendor/bento-statamic/build && cp -r public/vendor/bento-statamic/build/* ../../../public/vendor/bento-statamic/build/",
-        "prebuild": "mkdir -p public/vendor/bento-statamic/build"
+        "copy-assets": "mkdir -p ../../../public/vendor/bento-statamic-sdk && cp -r public/build ../../../public/vendor/bento-statamic-sdk/",
+        "prebuild": "mkdir -p public/vendor/bento-statamic-sdk/build"
     },
     "devDependencies": {
+        "@types/react": "^18.2.15",
+        "@types/react-dom": "^18.2.7",
+        "@vitejs/plugin-react": "^4.3.4",
+        "autoprefixer": "^10.4.20",
         "laravel-vite-plugin": "^0.7.2",
+        "postcss": "^8.4.49",
+        "tailwindcss": "^3.4.16",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "@radix-ui/react-label": "^2.0.2",
+        "@radix-ui/react-switch": "^1.0.3",
+        "@vitejs/plugin-vue": "^5.2.1",
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.0.0",
+        "lucide-react": "^0.263.1",
+        "react-dom": "^18.2.0",
+        "tailwind-merge": "^2.0.0",
+        "vue": "^3.5.13"
     }
 }

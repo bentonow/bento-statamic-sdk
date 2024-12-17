@@ -1,21 +1,29 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-    build: {
-        manifest: true,
-        outDir: 'public/vendor/bento-statamic/build',
-        rollupOptions: {
-            input: 'resources/js/cp.js'
-        }
-    },
     plugins: [
         laravel({
             input: [
-                'resources/js/cp.js'
+                'resources/js/addon.js',
+                'resources/css/addon.css'
             ],
+            refresh: true,
             publicDirectory: 'public',
-            buildDirectory: 'vendor/bento-statamic/build'
-        })
-    ]
+        }),
+        react()
+    ],
+    resolve: {
+        alias: {
+            '@': '/resources/js'
+        }
+    },
+    optimizeDeps: {
+        esbuildOptions: {
+            loader: {
+                '.js': 'jsx'
+            }
+        }
+    }
 });
