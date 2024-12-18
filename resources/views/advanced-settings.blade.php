@@ -75,6 +75,12 @@
                 </div>
             </div>
         </form>
+
+        <!-- Add Bento Events Component -->
+        <div id="bento-events" class="mt-8"></div>
+
+        <!-- Add Form Events Manager Component -->
+        <div id="form-events-manager" class="mt-8"></div>
     </div>
 @endsection
 

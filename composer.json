@@ -33,9 +33,10 @@
     "docs": "https://docs.bentonow.com"
   },
   "autoload": {
-    "psr-4": {
-      "Bento\\BentoStatamic\\": "src"
-    }
+        "psr-4": {
+            "Bento\\BentoStatamic\\": "src",
+            "Bento\\BentoStatamic\\Database\\": "database"
+        }
   },
   "autoload-dev": {
     "psr-4": {

@@ -2,11 +2,14 @@
 
 namespace Bento\BentoStatamic;
 
+use Database\Seeders\Seeders\BentoFormEventsSeeder;
 use Bento\BentoStatamic\Http\Middleware\BentoJsMiddleware;
+use Bento\BentoStatamic\Listeners\FormSubmissionListener;
 use Bentonow\BentoLaravel\DataTransferObjects\ImportSubscribersData;
 use Bentonow\BentoLaravel\Facades\Bento;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
+use Statamic\Events\SubmissionCreated;
 use Statamic\Providers\AddonServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Statamic\Events\UserCreated;
@@ -15,7 +18,6 @@ use Statamic\Facades\CP\Nav;
 
 class ServiceProvider extends AddonServiceProvider
 {
-
     protected $routes = [
         'cp' => __DIR__ . '/../routes/cp.php'
     ];
@@ -32,11 +34,24 @@ class ServiceProvider extends AddonServiceProvider
         'publicDirectory' => 'resources/dist',
     ];
 
+    protected $listen = [
+        SubmissionCreated::class => [
+            FormSubmissionListener::class,
+        ],
+    ];
+
     public function bootAddon()
     {
         // Merge configuration
         $this->mergeConfigFrom(__DIR__.'/../config/bento.php', 'bento');
 
+        // Load migrations from the package
+        $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
+
+        // Publish seeders
+        $this->publishes([
+            __DIR__.'/../Database/Seeders' => database_path('seeders/Bento'),
+        ], 'bento-statamic-seeders');
 
         // Publish configuration
         $this->publishes([
