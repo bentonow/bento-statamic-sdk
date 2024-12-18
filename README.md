@@ -12,10 +12,13 @@ Get started with our [ðŸ“š integration guides](https://docs.bentonow.com), or [ð
 
 * **Statamic Control Panel Integration**: Configure Bento directly from your Statamic CP
 * **Laravel Mail Integration**: Seamlessly integrate with Laravel's mail system to send transactional emails via Bento
-* **Event Tracking**: Automatically track user registrations and custom events
+* **Event Tracking**: Create and manage custom events directly from the CP
+* **Form Integration**: Associate Bento events with Statamic forms for automated tracking
 * **Subscriber Management**: Import and manage subscribers directly from your Statamic site
 * **Author Management**: Easily configure email senders through the CP interface
 * **Test Email Functionality**: Send test emails to verify your configuration
+* **Frontend Tracking**: Optional automatic injection of Bento's tracking script
+* **User Sync**: Automatic subscriber creation when new users register
 
 ## Requirements
 
@@ -37,6 +40,8 @@ composer require bentonow/bento-statamic-sdk
 ```bash
 php artisan vendor:publish --tag=bento-config
 php artisan vendor:publish --tag=bento-statamic-assets
+php artisan vendor:publish --tag=bento-statamic-seeders
+
 ```
 
 ## Configuration
@@ -64,6 +69,49 @@ BENTO_SECRET_KEY="bento-secret-key"
 MAIL_MAILER="bento"
 MAIL_FROM_ADDRESS="your-author@email.com"
 ```
+
+## Advanced Features
+
+### User Registration Tracking
+
+Control automatic user registration tracking in Bento:
+- Enable/disable automatic subscriber creation when new users register
+- Automatically splits full names into first and last names
+- Syncs email and basic user information
+- Configure through Advanced Settings in the CP
+
+### Frontend Tracking Script
+
+Manage Bento's JavaScript tracking integration:
+- Toggle automatic injection of Bento's tracking script
+- Tracks visitor behavior and custom events
+- Automatically adds tracking code to all frontend pages
+- No manual code insertion required
+
+### Custom Events Management
+
+Create and manage custom events for Bento automation:
+- Define custom event names through the CP interface
+- Use events in Bento's advanced flows and email automations
+- Track events across your Statamic site
+- Manage events with an intuitive UI
+
+### Form Event Integration
+
+Connect Statamic forms with Bento events:
+- Associate any Statamic form with a Bento event
+- Automatically triggers Bento events on form submission
+- Sends form data as event properties
+- Perfect for triggering automated workflows
+- Configure through the Form Events Manager in Advanced Settings
+
+Example form event workflow:
+1. Create a custom event in the CP (e.g., "Newsletter Signup")
+2. Associate the event with a Statamic form
+3. When the form is submitted:
+    - Event is automatically triggered in Bento
+    - Form data is sent as event properties
+    - Triggers any associated Bento automations
 
 ## Automatic Features
 

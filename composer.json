@@ -33,9 +33,10 @@
     "docs": "https://docs.bentonow.com"
   },
   "autoload": {
-    "psr-4": {
-      "Bento\\BentoStatamic\\": "src"
-    }
+        "psr-4": {
+            "Bento\\BentoStatamic\\": "src",
+            "Bento\\BentoStatamic\\Database\\": "database"
+        }
   },
   "autoload-dev": {
     "psr-4": {
@@ -66,11 +67,17 @@
       "developer": "Bento",
       "developer-url": "https://www.bentonow.com"
     },
-    "scripts": {
-      "post-autoload-dump": [
-        "@php artisan vendor:publish --tag=bento-statamic-assets --force"
-      ]
-    }
+      "scripts": {
+          "post-autoload-dump": [
+              "@php artisan vendor:publish --tag=bento-statamic-assets --force"
+          ],
+          "dev": "vite",
+          "build": "vite build",
+          "post-install-cmd": [
+              "@php artisan vendor:publish --tag=bento-statamic-components --force",
+              "@php artisan vendor:publish --tag=bento-statamic-tailwind --force"
+          ]
+      }
   },
   "minimum-stability": "dev",
   "prefer-stable": true

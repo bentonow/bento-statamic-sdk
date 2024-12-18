@@ -20,7 +20,7 @@
                         Please use Bento's main application for that activity to avoid the aggressive rate limits that we've put in place to stop abuse.
                     </p>
 
-                    <div class="bg-blue-50 border-l border-blue-400 mb-2">
+                    <div class="bg-blue-50 dark:bg-zinc-800 border-l border-blue-400 mb-2">
                         <p class="ml-3">
                             Please be aware that Bento does not support email attachments of any kind at this time. Emails with attachments will continue to use the email provider configured in your mail configuration.
                         </p>
@@ -33,9 +33,9 @@
 
                 <!-- Right Column - Image -->
                 <div class="flex items-center justify-center">
-                    <img src="{{ asset('vendor/bento-statamic/images/bento-statamic.webp') }}"
+                    <img src="{{ asset('vendor/bento-statamic-sdk/images/bento-statamic.webp') }}"
                          alt="Bento for Statamic"
-                         class="max-w-full rounded-lg shadow-lg"
+                         class="max-w-full"
                          style="max-height: 200px; object-fit: contain;">
                 </div>
             </div>
@@ -61,14 +61,17 @@
                 <div class="card p-4 mb-4">
                     <div class="mb-4">
                         <div class="flex items-center justify-between">
-                            <label class="font-bold ">Enable Bento</label>
+                            <label class="font-bold">Enable Bento</label>
                             <div>
-                                <input type="hidden" name="enabled" value="0">
-                                <input type="checkbox"
-                                       name="enabled"
-                                       value="1"
-                                       class="checkbox w-6 h-6"
-                                    {{ config('bento.enabled') ? 'checked' : '' }}>
+                                <input type="hidden" name="enabled" value="{{ config('bento.enabled') ? '1' : '0' }}">
+                                <div
+                                    data-react-component="bento-switch"
+                                    data-props='{
+                "id": "enabled",
+                "checked": {{ config('bento.enabled') ? 'true' : 'false' }},
+                "label": "Enable Bento"
+            }'
+                                ></div>
                             </div>
                         </div>
                         @error('enabled')
@@ -148,7 +151,12 @@
         </div>
     </div>
 @endsection
-
+<script>
+    function handleBentoToggle(checked) {
+        // Update the hidden input value
+        document.querySelector('input[name="enabled"]').value = checked ? "1" : "0";
+    }
+</script>
 @section('scripts')
     @parent
     <script>
