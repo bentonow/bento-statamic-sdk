@@ -79,6 +79,9 @@ const BentoEvents = () => {
             if (response.ok) {
                 setEvents(events.filter(event => event.id !== eventId));
                 window.Statamic.$toast.success('Event deleted successfully');
+
+                // Dispatch event for FormEventsManager
+                window.dispatchEvent(new Event('bentoEventsUpdated'));
             } else {
                 const errorData = await response.json();
                 console.error('Server error:', errorData);
@@ -118,9 +121,13 @@ const BentoEvents = () => {
                 setNewEvent({ name: '' });
                 fetchEvents();
 
+                // Dispatch event for FormEventsManager
+                window.dispatchEvent(new Event('bentoEventsUpdated'));
+
                 if (events.length > 3) {
                     setIsCollapsibleOpen(true);
                 }
+
             } else {
                 const errorData = await response.json();
                 console.error('Server error:', errorData);

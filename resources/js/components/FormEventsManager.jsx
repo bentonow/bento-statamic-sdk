@@ -36,24 +36,76 @@ const FormEventsManager = () => {
     const collapsibleForms = forms.slice(VISIBLE_ITEMS);
     const hasCollapsibleContent = forms.length > VISIBLE_ITEMS;
 
+    // Function to fetch events
+    const fetchEvents = async () => {
+        try {
+            const response = await fetch('/cp/bento/events');
+            const eventsData = await response.json();
+            setEvents(eventsData);
+
+            // Check and update form assignments for removed events
+            setForms(prevForms => prevForms.map(form => {
+                if (form.bento_event && !eventsData.some(event => event.name === form.bento_event)) {
+                    handleEventChange(form.handle, "none", false);
+                    return { ...form, bento_event: null };
+                }
+                return form;
+            }));
+        } catch (err) {
+            console.error('Error fetching events:', err);
+            setError('Failed to load events');
+        }
+    };
+
+    // Function to fetch forms
+    const fetchForms = async () => {
+        try {
+            const response = await fetch('/cp/bento/forms');
+            const formsData = await response.json();
+            return formsData; // Return the data instead of setting state directly
+        } catch (err) {
+            console.error('Error fetching forms:', err);
+            setError('Failed to load forms');
+            return [];
+        }
+    };
+
+    // Initial data load
     useEffect(() => {
-        Promise.all([
-            fetch('/cp/bento/forms').then(res => res.json()),
-            fetch('/cp/bento/events').then(res => res.json())
-        ])
-            .then(([formsData, eventsData]) => {
+        const loadInitialData = async () => {
+            try {
+                const [formsData, eventsResponse] = await Promise.all([
+                    fetchForms(),
+                    fetch('/cp/bento/events').then(res => res.json())
+                ]);
+
                 setForms(formsData);
-                setEvents(eventsData);
+                setEvents(eventsResponse);
                 setLoading(false);
-            })
-            .catch(err => {
-                setError('Failed to load forms and events');
+            } catch (error) {
+                console.error('Error loading initial data:', error);
                 setLoading(false);
                 window.Statamic.$toast.error('Failed to load forms and events');
-            });
+            }
+        };
+
+        loadInitialData();
     }, []);
 
-    const handleEventChange = async (formHandle, eventName) => {
+    // Set up event listener for Bento events changes
+    useEffect(() => {
+        const handleBentoEventChange = async () => {
+            await fetchEvents(); // Update events
+        };
+
+        window.addEventListener('bentoEventsUpdated', handleBentoEventChange);
+
+        return () => {
+            window.removeEventListener('bentoEventsUpdated', handleBentoEventChange);
+        };
+    }, []);
+
+    const handleEventChange = async (formHandle, eventName, showToast = true) => {
         setError(null);
         try {
             let csrfToken = document.cookie
@@ -84,17 +136,21 @@ const FormEventsManager = () => {
                 throw new Error(data.message || 'Failed to update form event');
             }
 
-            setForms(forms.map(form =>
+            setForms(prevForms => prevForms.map(form =>
                 form.handle === formHandle
                     ? { ...form, bento_event: eventName === "none" ? null : eventName }
                     : form
             ));
 
-            window.Statamic.$toast.success('Form event updated successfully');
+            if (showToast) {
+                window.Statamic.$toast.success('Form event updated successfully');
+            }
         } catch (err) {
             console.error('Error updating form event:', err);
             setError(err.message || 'Failed to update form event');
-            window.Statamic.$toast.error('Failed to update form event');
+            if (showToast) {
+                window.Statamic.$toast.error('Failed to update form event');
+            }
         }
     };
 
@@ -142,7 +198,7 @@ const FormEventsManager = () => {
                                     <SelectContent>
                                         <SelectItem value="none">No Event</SelectItem>
                                         {events.map((event) => (
-                                            <SelectItem key={event.name} value={event.name}>
+                                            <SelectItem key={event.id} value={event.name}>
                                                 {event.name}
                                             </SelectItem>
                                         ))}
@@ -176,7 +232,7 @@ const FormEventsManager = () => {
                                                 <SelectContent>
                                                     <SelectItem value="none">No Event</SelectItem>
                                                     {events.map((event) => (
-                                                        <SelectItem key={event.name} value={event.name}>
+                                                        <SelectItem key={event.id} value={event.name}>
                                                             {event.name}
                                                         </SelectItem>
                                                     ))}
