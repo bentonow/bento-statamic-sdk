@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error initializing FormEventsManager:', error);
         }
     }
+
 });
 
 // CSS imports

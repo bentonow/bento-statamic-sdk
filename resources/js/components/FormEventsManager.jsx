@@ -49,7 +49,6 @@ const FormEventsManager = () => {
             .catch(err => {
                 setError('Failed to load forms and events');
                 setLoading(false);
-                // Show error toast
                 window.Statamic.$toast.error('Failed to load forms and events');
             });
     }, []);
@@ -91,12 +90,10 @@ const FormEventsManager = () => {
                     : form
             ));
 
-            // Use Statamic's toast system
             window.Statamic.$toast.success('Form event updated successfully');
         } catch (err) {
             console.error('Error updating form event:', err);
             setError(err.message || 'Failed to update form event');
-            // Show error toast
             window.Statamic.$toast.error('Failed to update form event');
         }
     };
@@ -105,7 +102,7 @@ const FormEventsManager = () => {
         return (
             <div className="card p-4 mt-4">
                 <div className="flex items-center justify-center p-6">
-                    <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
+                    <LoaderCircle className="w-6 h-6 animate-spin text-primary" />
                 </div>
             </div>
         );
@@ -193,7 +190,7 @@ const FormEventsManager = () => {
                     </CollapsibleContent>
 
                     <CollapsibleTrigger className="flex justify-center w-full mt-2">
-                        <div className="hover:bg-zinc-100 dark:hover:bg-zinc-800/50 p-2 flex items-center gap-2 text-zinc-400">
+                        <div className="hover:bg-muted p-2 flex items-center gap-2 text-muted-foreground">
                             <ChevronDown
                                 className={cn(
                                     "h-4 w-4 transition-transform duration-200",

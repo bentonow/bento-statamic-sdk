@@ -27,6 +27,16 @@ class EventsController extends Controller
             $events = DB::table('bento_form_events')->get();
         } else {
             $events = $this->getEventsFromFile();
+            // Ensure each event has an id
+            $events = array_map(function ($event, $index) {
+                if (!isset($event['id'])) {
+                    $event['id'] = $index + 1;
+                }
+                return $event;
+            }, $events, array_keys($events));
+
+            // Save the updated events with IDs back to file
+            $this->saveEventsToFile($events);
         }
 
         return response()->json($events);
@@ -38,15 +48,22 @@ class EventsController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $validated['active'] = true;
-
         if ($this->useDatabase) {
             $id = DB::table('bento_form_events')->insertGetId($validated);
             $event = DB::table('bento_form_events')->find($id);
         } else {
             $events = $this->getEventsFromFile();
-            $id = count($events) + 1;
-            $validated['id'] = $id;
+
+            // Find the highest existing ID
+            $maxId = 0;
+            foreach ($events as $event) {
+                if (isset($event['id']) && $event['id'] > $maxId) {
+                    $maxId = $event['id'];
+                }
+            }
+
+            // Create new event with incremented ID
+            $validated['id'] = $maxId + 1;
             $events[] = $validated;
             $this->saveEventsToFile($events);
             $event = $validated;
@@ -55,26 +72,28 @@ class EventsController extends Controller
         return response()->json($event);
     }
 
-    public function updateStatus(Request $request, $id)
+
+    public function destroy($id)
     {
-        $active = $request->boolean('active');
+        try {
+            if ($this->useDatabase) {
+                DB::table('bento_form_events')->where('id', $id)->delete();
+            } else {
+                $events = $this->getEventsFromFile();
+                $events = array_values(array_filter($events, function ($event) use ($id) {
+                    return isset($event['id']) && $event['id'] != $id;
+                }));
+                $this->saveEventsToFile($events);
+            }
 
-        if ($this->useDatabase) {
-            DB::table('bento_form_events')
-                ->where('id', $id)
-                ->update(['active' => $active]);
-        } else {
-            $events = $this->getEventsFromFile();
-            $events = array_map(function ($event) use ($id, $active) {
-                if ($event['id'] == $id) {
-                    $event['active'] = $active;
-                }
-                return $event;
-            }, $events);
-            $this->saveEventsToFile($events);
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            Log::error('Failed to delete event: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete event: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['success' => true]);
     }
 
     protected function getEventsFromFile()
@@ -84,11 +103,23 @@ class EventsController extends Controller
             return [];
         }
 
-        return YAML::parse(File::get($this->eventsPath)) ?? [];
+        $events = YAML::parse(File::get($this->eventsPath)) ?? [];
+
+        // Ensure each event has an ID
+        $events = array_map(function ($event, $index) {
+            if (!isset($event['id'])) {
+                $event['id'] = $index + 1;
+            }
+            return $event;
+        }, $events, array_keys($events));
+
+        return $events;
     }
 
     protected function saveEventsToFile($events)
     {
+        // Ensure proper array values before saving
+        $events = array_values($events);
         File::put($this->eventsPath, YAML::dump($events));
     }
 

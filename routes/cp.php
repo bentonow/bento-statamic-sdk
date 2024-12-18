@@ -18,7 +18,8 @@ Route::prefix('bento')->group(function () {
     // Events routes
     Route::get('/events', [EventsController::class, 'index'])->name('bento.events.index');
     Route::post('/events', [EventsController::class, 'store'])->name('bento.events.store');
-    Route::patch('/events/{event}/status', [EventsController::class, 'updateStatus'])->name('bento.events.update-status');
     Route::get('/forms', [EventsController::class, 'getForms'])->name('bento.forms.index');
     Route::post('/forms/{handle}/event', [EventsController::class, 'updateFormEvent'])->name('bento.forms.update-event');
+    Route::delete('/events/{event}', [EventsController::class, 'destroy'])->name('bento.events.destroy');
+
 });

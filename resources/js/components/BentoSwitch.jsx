@@ -13,7 +13,6 @@ const BentoSwitch = ({ id, label, checked: initialChecked = false }) => {
         console.log('Switch toggled:', checked);
         setIsChecked(checked);
 
-        // Update the hidden input value
         const hiddenInput = document.querySelector(`input[name="${id}"]`);
         if (hiddenInput) {
             hiddenInput.value = checked ? "1" : "0";
@@ -29,9 +28,8 @@ const BentoSwitch = ({ id, label, checked: initialChecked = false }) => {
                 id={id}
                 checked={isChecked}
                 onCheckedChange={handleChange}
-                className="data-[state=checked]:bg-blue-500 dark:data-[state=checked]:bg-blue-300"
+                className="data-[state=checked]:bg-primary dark:data-[state=checked]:bg-primary"
             />
-
         </div>
     );
 };
