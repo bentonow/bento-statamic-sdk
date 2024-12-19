@@ -1,6 +1,6 @@
 {
   "name": "bentonow/bento-statamic-sdk",
-  "version": "1.0.2",
+  "version": "1.0.1",
   "description": "Bento addon for Statamic, enabling you to easily integrate Bento with your Statamic site",
   "type": "statamic-addon",
   "keywords": [
@@ -33,10 +33,10 @@
     "docs": "https://docs.bentonow.com"
   },
   "autoload": {
-    "psr-4": {
-      "Bento\\BentoStatamic\\": "src",
-      "Bento\\BentoStatamic\\Database\\": "database"
-    }
+        "psr-4": {
+            "Bento\\BentoStatamic\\": "src",
+            "Bento\\BentoStatamic\\Database\\": "database"
+        }
   },
   "autoload-dev": {
     "psr-4": {
@@ -67,17 +67,17 @@
       "developer": "Bento",
       "developer-url": "https://www.bentonow.com"
     },
-    "scripts": {
-      "post-autoload-dump": [
-        "@php artisan vendor:publish --tag=bento-statamic-assets --force"
-      ],
-      "dev": "vite",
-      "build": "vite build",
-      "post-install-cmd": [
-        "@php artisan vendor:publish --tag=bento-statamic-components --force",
-        "@php artisan vendor:publish --tag=bento-statamic-tailwind --force"
-      ]
-    }
+      "scripts": {
+          "post-autoload-dump": [
+              "@php artisan vendor:publish --tag=bento-statamic-assets --force"
+          ],
+          "dev": "vite",
+          "build": "vite build",
+          "post-install-cmd": [
+              "@php artisan vendor:publish --tag=bento-statamic-components --force",
+              "@php artisan vendor:publish --tag=bento-statamic-tailwind --force"
+          ]
+      }
   },
   "minimum-stability": "dev",
   "prefer-stable": true
