@@ -36,17 +36,19 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
+      - name: Install Node dependencies
+        run: npm ci
 
-      - name: Install Dependencies
-        run: bun install
+      - name: Build assets
+        run: npm run build
 
-      - name: Build Assets
-        run: bun run build
+      - name: Create vendor directory and copy assets
+        run: |
+          mkdir -p public/vendor/bento-statamic-sdk
+          cp -r public/build/* public/vendor/bento-statamic-sdk/
+          cp -r resources/images public/vendor/bento-statamic-sdk/
 
       - name: Set version
         run: |
@@ -71,8 +73,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add composer.json
-          git add public/vendor/bento-statamic-sdk
-          git add resources/dist
+          git add -f public/vendor/bento-statamic-sdk
           git commit -m "chore: bump version to ${{ github.event.inputs.version }} and update assets [skip ci]"
           git push
 
