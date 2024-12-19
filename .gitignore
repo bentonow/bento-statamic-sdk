@@ -28,7 +28,6 @@ Thumbs.db
 # Build directories
 /public/hot
 /public/storage
-/public/vendor
 /storage/*.key
 /build
 /dist
