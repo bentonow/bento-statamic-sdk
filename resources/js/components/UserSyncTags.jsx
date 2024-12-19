@@ -17,22 +17,14 @@ const UserSyncTags = () => {
     const [selectedTag, setSelectedTag] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pendingTags, setPendingTags] = useState(new Set()); // Track tags being added/removed
 
     const fetchSelectedTags = async () => {
         try {
-            let csrfToken = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('XSRF-TOKEN='))
-                ?.split('=')[1];
-
-            if (csrfToken) {
-                csrfToken = decodeURIComponent(csrfToken);
-            }
-
             const response = await fetch('/cp/bento/sync-tags', {
                 headers: {
                     'Accept': 'application/json',
-                    'X-XSRF-TOKEN': csrfToken
+                    'X-XSRF-TOKEN': getCsrfToken()
                 },
                 credentials: 'include'
             });
@@ -42,7 +34,6 @@ const UserSyncTags = () => {
             }
 
             const tags = await response.json();
-            console.log('Fetched selected tags:', tags); // Debug log
             setSelectedTags(tags);
         } catch (err) {
             console.error('Error fetching selected tags:', err);
@@ -51,19 +42,10 @@ const UserSyncTags = () => {
 
     const fetchAvailableTags = async () => {
         try {
-            let csrfToken = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('XSRF-TOKEN='))
-                ?.split('=')[1];
-
-            if (csrfToken) {
-                csrfToken = decodeURIComponent(csrfToken);
-            }
-
             const response = await fetch('/cp/bento/tags', {
                 headers: {
                     'Accept': 'application/json',
-                    'X-XSRF-TOKEN': csrfToken
+                    'X-XSRF-TOKEN': getCsrfToken()
                 },
                 credentials: 'include'
             });
@@ -87,7 +69,6 @@ const UserSyncTags = () => {
         }
     };
 
-    // Initial load
     useEffect(() => {
         const initializeData = async () => {
             await fetchAvailableTags();
@@ -96,78 +77,88 @@ const UserSyncTags = () => {
         initializeData();
     }, []);
 
-    const addTag = async () => {
-        if (!selectedTag || selectedTags.includes(selectedTag)) return;
+    const getCsrfToken = () => {
+        const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('XSRF-TOKEN='))
+            ?.split('=')[1];
+
+        return token ? decodeURIComponent(token) : null;
+    };
+
+    const addTag = async (e) => {
+        e.preventDefault();
+        if (!selectedTag || selectedTags.includes(selectedTag) || pendingTags.has(selectedTag)) return;
+
+        // Optimistic update
+        setPendingTags(prev => new Set([...prev, selectedTag]));
+        setSelectedTags(prev => [...prev, selectedTag]);
+        setSelectedTag('');
 
         try {
-            let csrfToken = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('XSRF-TOKEN='))
-                ?.split('=')[1];
-
-            if (csrfToken) {
-                csrfToken = decodeURIComponent(csrfToken);
-            }
-
             const response = await fetch('/cp/bento/sync-tags', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-XSRF-TOKEN': csrfToken
+                    'X-XSRF-TOKEN': getCsrfToken()
                 },
                 credentials: 'include',
-                body: JSON.stringify({
-                    tag: selectedTag
-                })
+                body: JSON.stringify({ tag: selectedTag })
             });
 
             if (!response.ok) {
                 throw new Error('Failed to add tag');
             }
 
-            setSelectedTag('');
-            await fetchSelectedTags(); // Refresh the selected tags
             window.Statamic.$toast.success('Tag added successfully');
         } catch (err) {
-            console.error('Error adding tag:', err);
+            // Revert optimistic update
+            setSelectedTags(prev => prev.filter(tag => tag !== selectedTag));
             window.Statamic.$toast.error('Failed to add tag');
+        } finally {
+            setPendingTags(prev => {
+                const updated = new Set(prev);
+                updated.delete(selectedTag);
+                return updated;
+            });
         }
     };
 
     const removeTag = async (tagToRemove) => {
+        if (pendingTags.has(tagToRemove)) return;
+
+        // Optimistic update
+        setPendingTags(prev => new Set([...prev, tagToRemove]));
+        setSelectedTags(prev => prev.filter(tag => tag !== tagToRemove));
+
         try {
-            let csrfToken = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('XSRF-TOKEN='))
-                ?.split('=')[1];
-
-            if (csrfToken) {
-                csrfToken = decodeURIComponent(csrfToken);
-            }
-
             const response = await fetch('/cp/bento/sync-tags', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-XSRF-TOKEN': csrfToken
+                    'X-XSRF-TOKEN': getCsrfToken()
                 },
                 credentials: 'include',
-                body: JSON.stringify({
-                    tag: tagToRemove
-                })
+                body: JSON.stringify({ tag: tagToRemove })
             });
 
             if (!response.ok) {
                 throw new Error('Failed to remove tag');
             }
 
-            await fetchSelectedTags(); // Refresh the selected tags
             window.Statamic.$toast.success('Tag removed successfully');
         } catch (err) {
-            console.error('Error removing tag:', err);
+            // Revert optimistic update
+            setSelectedTags(prev => [...prev, tagToRemove]);
             window.Statamic.$toast.error('Failed to remove tag');
+        } finally {
+            setPendingTags(prev => {
+                const updated = new Set(prev);
+                updated.delete(tagToRemove);
+                return updated;
+            });
         }
     };
 
@@ -217,7 +208,7 @@ const UserSyncTags = () => {
                 </div>
                 <Button
                     onClick={addTag}
-                    disabled={!selectedTag}
+                    disabled={!selectedTag || pendingTags.has(selectedTag)}
                     size="sm"
                     className="flex items-center gap-1"
                 >
@@ -228,11 +219,16 @@ const UserSyncTags = () => {
 
             <div className="flex flex-wrap gap-2 mt-4">
                 {selectedTags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                        key={tag}
+                        variant="secondary"
+                        className={`flex items-center gap-1 ${pendingTags.has(tag) ? 'opacity-50' : ''}`}
+                    >
                         {tag}
                         <button
                             onClick={() => removeTag(tag)}
                             className="ml-1 hover:bg-destructive hover:text-destructive-foreground rounded-full"
+                            disabled={pendingTags.has(tag)}
                         >
                             <X className="w-3 h-3" />
                         </button>
