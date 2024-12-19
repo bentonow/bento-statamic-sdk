@@ -37,6 +37,17 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Build Assets
+        run: bun run build
+
       - name: Set version
         run: |
           echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
@@ -55,12 +66,14 @@ jobs:
             const notes = await script({github, context})
             core.setOutput('notes', notes)
 
-      - name: Commit version bump
+      - name: Commit version bump and built assets
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add composer.json
-          git commit -m "chore: bump version to ${{ github.event.inputs.version }} [skip ci]"
+          git add public/vendor/bento-statamic-sdk
+          git add resources/dist
+          git commit -m "chore: bump version to ${{ github.event.inputs.version }} and update assets [skip ci]"
           git push
 
       - name: Create tag

@@ -2,7 +2,8 @@
 
 namespace Bento\BentoStatamic;
 
-use Database\Seeders\Seeders\BentoFormEventsSeeder;
+use Illuminate\Support\Facades\DB;
+use Statamic\Facades\File;
 use Bento\BentoStatamic\Http\Middleware\BentoJsMiddleware;
 use Bento\BentoStatamic\Listeners\FormSubmissionListener;
 use Bentonow\BentoLaravel\DataTransferObjects\ImportSubscribersData;
@@ -10,6 +11,7 @@ use Bentonow\BentoLaravel\Facades\Bento;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Statamic\Events\SubmissionCreated;
+use Statamic\Facades\YAML;
 use Statamic\Providers\AddonServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Statamic\Events\UserCreated;
@@ -31,7 +33,6 @@ class ServiceProvider extends AddonServiceProvider
             'resources/js/addon.js',
             'resources/css/addon.css',
         ],
-        'publicDirectory' => 'resources/dist',
     ];
 
     protected $listen = [
@@ -58,21 +59,11 @@ class ServiceProvider extends AddonServiceProvider
             __DIR__.'/../config/bento.php' => config_path('bento.php'),
         ], 'bento-config');
 
-        // Publish built assets to the parent application's public directory
+        // Publish built assets to match package.json copy-assets script
         $this->publishes([
-            __DIR__.'/../public/vendor/bento-statamic-sdk' => public_path('vendor/bento-statamic-sdk'),
-        ], 'bento-statamic-assets');
-
-        // Publish images
-        $this->publishes([
+            __DIR__.'/../public/build' => public_path('vendor/bento-statamic-sdk/build'),
             __DIR__.'/../resources/images' => public_path('vendor/bento-statamic-sdk/images'),
-        ], 'bento-statamic-assets');
-        // Publish js tracker
-        $this->publishes([
             __DIR__.'/../resources/views/partials' => resource_path('views/vendor/bento-statamic/partials'),
-        ], 'bento-statamic-assets');
-        // Publish Tailwind config
-        $this->publishes([
             __DIR__.'/../tailwind.config.js' => base_path('tailwind.config.bento.js'),
         ], 'bento-statamic-assets');
 
@@ -140,12 +131,15 @@ class ServiceProvider extends AddonServiceProvider
             // Split name into first and last
             $nameParts = $this->splitName($fullName);
 
+            // Get the sync tags
+            $syncTags = $this->getSyncTags();
+
             // Create subscriber data
             $subscriberData = new ImportSubscribersData(
                 email: $user->email(),
                 firstName: $nameParts['first_name'],
                 lastName: $nameParts['last_name'],
-                tags: [],
+                tags: $syncTags,
                 removeTags: [],
                 fields: []
             );
@@ -153,6 +147,31 @@ class ServiceProvider extends AddonServiceProvider
             Bento::importSubscribers(collect([$subscriberData]));
         } catch (\Exception $e) {
             Log::error('Failed to create Bento subscriber: ' . $e->getMessage());
+        }
+    }
+
+    protected function getSyncTags()
+    {
+        try {
+            if (config('statamic.database.enabled', false)) {
+                return DB::table('bento_sync_tags')
+                    ->select('tag_name')
+                    ->get()
+                    ->pluck('tag_name')
+                    ->toArray();
+            } else {
+                $syncTagsPath = storage_path('bento/sync_tags.yaml');
+                if (!File::disk()->exists($syncTagsPath)) {
+                    File::disk()->put($syncTagsPath, YAML::dump([]));
+                    return [];
+                }
+
+                $tags = YAML::parse(File::disk()->get($syncTagsPath)) ?? [];
+                return collect($tags)->pluck('tag_name')->toArray();
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to get sync tags: ' . $e->getMessage());
+            return [];
         }
     }
 

@@ -44,8 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error initializing FormEventsManager:', error);
         }
     }
+    const userSyncTags = document.getElementById('user-sync-tags');
+    if (userSyncTags) {
+        try {
+            const root = createRoot(userSyncTags);
+            root.render(React.createElement(UserSyncTags));
+            console.log('UserSyncTags component mounted');
+        } catch (error) {
+            console.error('Error initializing UserSyncTags:', error);
+        }
+    }
 
 });
 
 // CSS imports
 import '../css/addon.css';
+import UserSyncTags from "@/components/UserSyncTags";

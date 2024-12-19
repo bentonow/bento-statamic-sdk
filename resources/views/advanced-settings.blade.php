@@ -35,6 +35,8 @@
                                 }'
                             ></div>
                         </div>
+                        <!-- In the Auto User Sync section, after the description paragraph -->
+                        <div id="user-sync-tags"></div>
                     </div>
                     <div class="border-b pb-4 mb-4">
                         <p class="text-gray-700 dark:text-gray-600">

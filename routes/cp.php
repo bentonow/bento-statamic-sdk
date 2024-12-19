@@ -21,5 +21,9 @@ Route::prefix('bento')->group(function () {
     Route::get('/forms', [EventsController::class, 'getForms'])->name('bento.forms.index');
     Route::post('/forms/{handle}/event', [EventsController::class, 'updateFormEvent'])->name('bento.forms.update-event');
     Route::delete('/events/{event}', [EventsController::class, 'destroy'])->name('bento.events.destroy');
-
+    // Tags
+    Route::get('/tags', [EventsController::class, 'getTags'])->name('bento.tags.index');
+    Route::get('/sync-tags', [EventsController::class, 'getSyncTags'])->name('bento.sync-tags.index');
+    Route::post('/sync-tags', [EventsController::class, 'addSyncTag'])->name('bento.sync-tags.store');
+    Route::delete('/sync-tags', [EventsController::class, 'removeSyncTag'])->name('bento.sync-tags.destroy');
 });

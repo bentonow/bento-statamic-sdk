@@ -40,7 +40,11 @@ composer require bentonow/bento-statamic-sdk
 ```bash
 php artisan vendor:publish --tag=bento-config
 php artisan vendor:publish --tag=bento-statamic-assets
+
+# (optional) if you wish to use a list of prebuilt bento events
 php artisan vendor:publish --tag=bento-statamic-seeders
+php artisan db:seed --class="Database\\Seeders\\Bento\\BentoFormEventsSeeder"
+
 
 ```
 
@@ -79,6 +83,34 @@ Control automatic user registration tracking in Bento:
 - Automatically splits full names into first and last names
 - Syncs email and basic user information
 - Configure through Advanced Settings in the CP
+
+### User Synchronization Tags
+
+When automatic user synchronization is enabled, you can configure default tags that will be automatically applied to new users when they are synchronized with Bento:
+
+- Choose from your existing Bento tags in the Advanced Settings
+- Add multiple tags that will be applied to all new users
+- Tags are stored consistently whether using database or file-based storage
+- Easily manage tags through the Control Panel interface
+- Remove tags with a single click
+- Changes take effect immediately for new user registrations
+
+#### Configuration Steps:
+
+1. Navigate to Tools > Bento > Advanced Settings
+2. Enable "Automatic User Sync"
+3. Under the sync settings, use the tag selector to add default tags
+4. Selected tags will automatically be applied to all new user registrations
+
+#### Example Usage:
+
+If you've selected tags like "new-user" and "needs-onboarding", when a new user registers:
+- A subscriber is created in Bento
+- The user's name is split into first and last name
+- Email and basic user information is synced
+- Both "new-user" and "needs-onboarding" tags are automatically applied
+
+This feature allows you to automatically segment new users without any additional configuration.
 
 ### Frontend Tracking Script
 
