@@ -1,11 +1,10 @@
 {
     "private": true,
     "scripts": {
-        "watch": "vite build --watch",
+        "watch": "vite build --watch && bun run copy-assets",
         "dev": "vite",
-        "build": "vite build && npm run copy-assets",
-        "copy-assets": "mkdir -p ../../../public/vendor/bento-statamic-sdk && cp -r public/build ../../../public/vendor/bento-statamic-sdk/",
-        "prebuild": "mkdir -p public/vendor/bento-statamic-sdk/build"
+        "build": "vite build",
+        "copy-assets": "mkdir -p ../../../public/vendor/bento-statamic-sdk && cp -r public/build ../../../public/vendor/bento-statamic-sdk/"
     },
     "devDependencies": {
         "@types/react": "^18.2.15",
